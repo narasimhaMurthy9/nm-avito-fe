@@ -1,0 +1,1 @@
+function r(t){let n=atob(t),o=new Uint8Array(n.length);for(let e=0;e<n.length;e+=1)o[e]=n.charCodeAt(e);return URL.createObjectURL(new Blob([o],{type:`application/pdf`}))}function i(t){t&&t.startsWith(`blob:`)&&URL.revokeObjectURL(t)}export{r as n,i as t};
