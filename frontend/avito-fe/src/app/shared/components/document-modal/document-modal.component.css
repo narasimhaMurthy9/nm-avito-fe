@@ -1,0 +1,4 @@
+.modal-title { font-size: 20px; font-weight: 600; color: #1a2b4c; }
+    .icon-lg { width: 24px; height: 24px; }
+    .doc-object { width: 100%; height: 100%; border: 1px solid #e2e8f0; border-radius: 4px; }
+    .doc-img { max-width: 100%; object-fit: contain; border: 1px solid #e2e8f0; }

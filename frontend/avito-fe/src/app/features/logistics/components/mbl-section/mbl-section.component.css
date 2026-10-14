@@ -1,0 +1,15 @@
+.mbl-title { font-size: 24px; font-weight: 600; color: #1a2b4c; margin-bottom: 8px; }
+    .mbl-subtitle { color: #64748b; margin-bottom: 32px; }
+    .success-text { color: #15803d; font-weight: 500; margin-bottom: 8px; }
+    .info-text { font-size: 14px; color: #64748b; margin-bottom: 4px; }
+    .info-text-large { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+    .code-block { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; }
+    .doc-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: #f8fafc; margin-bottom: 16px; }
+    .doc-title { font-weight: 500; color: #334155; }
+    .form-section-title { font-weight: 600; color: #1a2b4c; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+    .included-hbls-label { font-weight: 500; }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }

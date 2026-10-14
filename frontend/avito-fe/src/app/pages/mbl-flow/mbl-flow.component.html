@@ -1,0 +1,102 @@
+
+<div class="layout-container">
+
+
+  <main class="main-layout">
+    <!-- Left Column: Uploader -->
+    <div class="left-panel">
+      <header class="app-header" style="justify-content: center; width: 100%; position: relative;">
+        <a routerLink="/" style="position: absolute; left: 0; display: flex; align-items: center; gap: 4px; text-decoration: none; color: #64748b; font-weight: 500; font-size: 14px;">
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
+           Back
+        </a>
+        <div class="logo-container" style="justify-content: center;">
+          <img src="avito.png" alt="Avito Logo" class="header-logo" />
+        </div>
+      </header>
+
+      <app-uploader 
+        [showPreview]="true"
+        (previewFile)="onPreviewFile($event)"
+        (filesSelected)="processFiles($event)">
+      </app-uploader>
+    </div>
+
+    <!-- Right Column: Wizard Steps -->
+    <div class="right-panel" [class.panel-disabled]="workflow.hblReviews().length === 0">
+      
+      <!-- Wizard Progress Header -->
+      <div class="wizard-header">
+        
+        <!-- Step 1 -->
+        <div class="wizard-step" (click)="workflow.setCurrentStep(1)">
+          <div class="wizard-step-number" [class.active]="workflow.currentStep() === 1">1</div>
+          <div class="wizard-step-title" [class.active]="workflow.currentStep() === 1">Packing List & Complete HBL Details</div>
+        </div>
+
+        <div class="wizard-step-divider"></div>
+
+        <!-- Step 2 -->
+        <div class="wizard-step" [class.disabled]="!workflow.canShowMbl()" (click)="workflow.canShowMbl() && workflow.setCurrentStep(2)">
+          <div class="wizard-step-number" [class.active]="workflow.currentStep() === 2">2</div>
+          <div class="wizard-step-title" [class.active]="workflow.currentStep() === 2">Complete MBL Details</div>
+        </div>
+      </div>
+
+      <!-- Step 1 Content -->
+      <div [class.hidden]="workflow.currentStep() !== 1">
+        <!-- The grouped drafts drop board -->
+        <app-grouping-board (docClicked)="viewDoc($event)"></app-grouping-board>
+
+        <!-- Dynamic HBL Forms per Group -->
+        @if (workflow.groupedSelectedDrafts().length > 0) {
+          <div>
+            @for (group of workflow.groupedSelectedDrafts(); track (group.groupId || '') + '_' + (group.drafts[0]?.draft_id || gIdx); let gIdx = $index) {
+              <app-hbl-draft 
+                [drafts]="group.drafts"
+                [groupColor]="group.color"
+                [groupTitle]="group.color ? 'Group ' + (workflow.getGroupIndex(group.groupId!) + 1) : 'Ungrouped File'"
+                [expanded]="false"
+                (generateRequested)="generateHbl($event)"
+              ></app-hbl-draft>
+            }
+          </div>
+        }
+        @if (workflow.canShowMbl()) {
+          <div class="flex form-actions-container" style="justify-content: flex-end; margin-top: 24px; margin-bottom: 24px;">
+            <button type="button" class="btn-primary" (click)="workflow.setCurrentStep(2)">Complete MBL Details</button>
+          </div>
+        }
+      </div>
+
+      <!-- Step 2 Content -->
+      <div [class.hidden]="workflow.currentStep() !== 2">
+        <div class="review-content">
+          @if (workflow.canShowMbl() && workflow.mblReview()) {
+            @defer (when workflow.currentStep() === 2) {
+              <app-mbl-section 
+                [reviews]="workflow.hblReviews()"
+                [mblReview]="workflow.mblReview()!"
+                [batchId]="workflow.hblReviews()[0]?.batch_id || ''"
+                (generateRequested)="generateMbl()"
+              ></app-mbl-section>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <app-wifi-loader [show]="isExtracting()" text="extracting"></app-wifi-loader>
+  <app-wifi-loader [show]="isGenerating()" text="generating"></app-wifi-loader>
+
+  @if (selectedDocUrl()) {
+    <app-document-modal 
+      [isOpen]="true" 
+      [title]="selectedDocName()" 
+      [documentUrl]="selectedDocUrl()!" 
+      [mimeType]="selectedDocMime()"
+      (closed)="closeDoc()">
+    </app-document-modal>
+  }
+</div>

@@ -1,0 +1,95 @@
+<div class="card mb-6 grouping-card">
+  <div class="accordion-header grouping-accordion-header" (click)="isMultiSelectOpen = !isMultiSelectOpen">
+    <div class="grouping-header-title">
+      Review Draft (Multi-select)
+    </div>
+    <div class="grouping-header-actions">
+      <button class="btn-outline grouping-add-btn" (click)="addGroup($event)">+ Add Group</button>
+      <button class="btn-outline grouping-clear-btn" (click)="clearSuggestions($event)">Clear Suggestion Group</button>
+      <button class="btn-outline grouping-clear-btn" (click)="clearAll($event)">Clear All</button>
+      <svg class="grouping-chevron" [class.rotate-180]="isMultiSelectOpen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+    </div>
+  </div>
+  
+  @if (isMultiSelectOpen) {
+    <div class="accordion-body grouping-accordion-body">
+      <div cdkDropListGroup class="grouping-drop-list-group">
+        
+        <!-- Ungrouped Drop Zone -->
+        <div cdkDropList
+             [cdkDropListData]="workflow.ungroupedDrafts()"
+             (cdkDropListDropped)="drop($event, null)"
+             class="grouping-drop-zone">
+          <div class="grouping-drop-zone-title">
+            Ungrouped Files
+          </div>
+          
+          <div class="grouping-drop-zone-list">
+            @for (review of workflow.ungroupedDrafts(); track review.draft_id) {
+              <div cdkDrag
+                      [cdkDragDisabled]="workflow.isGroupSaved(review.group_id || null)"
+                      class="pill-btn"
+                      [class.is-saved]="workflow.isGroupSaved(review.group_id || null)"
+                      [ngStyle]="review.uiGroupStyle">
+                <span>{{ review.uiGlobalIndex + 1 }}. {{ review.source_name }}</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="grouping-draft-status">{{ review.details_confirmed ? 'Ready' : 'Draft' }}</span>
+                  <button type="button" (click)="docClicked.emit(review); $event.stopPropagation()" style="background: none; border: none; cursor: pointer; padding: 2px; color: #64748b; display: flex; align-items: center;" title="View PDF">👁️</button>
+                </div>
+              </div>
+            }
+            @if (workflow.ungroupedDrafts().length === 0) {
+              <div class="grouping-empty-text">
+                Drag PDFs here to ungroup
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Group Drop Zones -->
+        @for (group of workflow.groupedAllDrafts(); track group.groupId; let gIdx = $index) {
+          <div cdkDropList
+               [cdkDropListData]="group.drafts"
+               (cdkDropListDropped)="drop($event, group.groupId)"
+               [cdkDropListDisabled]="workflow.isGroupSaved(group.groupId)"
+               class="grouping-drop-zone group-drop-zone"
+               [style.borderTop]="group.color ? '4px solid ' + group.color : null"
+               [class.is-saved]="workflow.isGroupSaved(group.groupId)">
+            <div class="grouping-group-header">
+              <div class="grouping-group-title">
+                 Group {{ gIdx + 1 }}
+              </div>
+              @if (group.color && !workflow.isGroupSaved(group.groupId)) {
+                <button class="btn-outline-danger grouping-remove-btn" (click)="removeGroup(group.groupId!)">
+                  Remove
+                </button>
+              }
+            </div>
+            
+            <div class="grouping-drop-zone-list">
+              @for (review of group.drafts; track review.draft_id) {
+                <div cdkDrag
+                        [cdkDragDisabled]="workflow.isGroupSaved(group.groupId)"
+                        class="pill-btn"
+                        [class.is-saved]="workflow.isGroupSaved(group.groupId)"
+                        [ngStyle]="review.uiGroupStyle">
+                  <span>{{ review.uiGlobalIndex + 1 }}. {{ review.source_name }}</span>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="grouping-draft-status">{{ review.details_confirmed ? 'Ready' : 'Draft' }}</span>
+                    <button type="button" (click)="docClicked.emit(review); $event.stopPropagation()" style="background: none; border: none; cursor: pointer; padding: 2px; color: #64748b; display: flex; align-items: center;" title="View PDF">👁️</button>
+                  </div>
+                </div>
+              }
+              @if (group.drafts.length === 0) {
+                <div class="grouping-empty-text">
+                  Drag PDFs here
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  }
+</div>

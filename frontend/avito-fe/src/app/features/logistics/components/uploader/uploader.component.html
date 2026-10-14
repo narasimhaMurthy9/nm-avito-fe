@@ -1,0 +1,67 @@
+<div class="uploader-card">
+      <div 
+        class="uploader-box"
+        (click)="fileInput.click()"
+        (dragover)="onDragOver($event)"
+        (drop)="onDrop($event)"
+        (dragleave)="onDragLeave($event)"
+        [class.dragging]="isDragging"
+      >
+        <input type="file" multiple #fileInput class="file-input-hidden" (change)="onFileSelected($event)" accept="application/pdf,image/png,image/jpeg">
+        
+        <div class="icon-circle">
+          <svg class="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        </div>
+        
+        <h3 class="uploader-title">Upload your files</h3>
+        <p class="uploader-subtitle">Drag and drop files here or click to browse</p>
+        <p class="uploader-hint">Support for multiple file types up to 10MB each</p>
+        
+        <button class="btn-primary btn-with-icon" (click)="fileInput.click(); $event.stopPropagation()">
+          <span>
+            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            Select files
+          </span>
+        </button>
+      </div>
+
+      @if (selectedFiles.length > 0) {
+        <div>
+          <div class="upload-progress-header">
+            <div class="upload-progress-title">
+              Upload Progress
+              <span class="badge-orange">Completed: {{ selectedFiles.length }}</span>
+            </div>
+            <button class="btn-outline" (click)="clearAll()">Clear all</button>
+          </div>
+
+          <div class="file-list-container">
+            @for (file of selectedFiles; track i; let i = $index) {
+              <div class="file-list-item">
+                <div class="file-row">
+                  <div class="file-icon-box">
+                    <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                  </div>
+                  <div class="file-info">
+                    <div class="file-name">{{ file.name }}</div>
+                    <div class="file-size">{{ formatSize(file.size) }}</div>
+                  </div>
+                   @if (showPreview) {
+                    <button class="file-preview-btn" (click)="onPreview(file)" style="margin-right: 4px;" title="Preview">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    </button>
+                  }
+                  <button class="file-remove-btn" (click)="removeFile(i)">
+                    <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="extract-action-row">
+            <button class="btn-primary" (click)="extract()">{{ buttonText }}</button>
+          </div>
+        </div>
+      }
+    </div>

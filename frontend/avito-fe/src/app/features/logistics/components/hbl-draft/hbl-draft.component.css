@@ -1,0 +1,184 @@
+.tab-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+
+.doc-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+}
+
+/* Added semantic classes for hbl-draft */
+.hbl-draft-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.text-ready {
+  color: #15803d;
+}
+
+.text-draft {
+  color: #f97316;
+}
+
+.accordion-icon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s;
+}
+
+.packing-list-select-container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  max-width: 550px;
+}
+
+.packing-list-select {
+  flex: 1;
+  cursor: pointer;
+  height: 48px;
+  min-height: 48px;
+  padding: 8px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 6px;
+}
+
+.packing-list-option {
+  padding: 8px;
+}
+
+.view-pdf-btn {
+  height: 48px;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  padding: 0 20px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+}
+
+.form-actions-container {
+  align-items: center;
+}
+
+.btn-generate-pdf {
+  background-color: #0f172a;
+}
+
+.hbl-number-code {
+  background: #f1f5f9;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.generated-hbl-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.final-hbl-doc-box {
+  flex: 1;
+  min-width: 250px;
+  padding: 12px;
+  max-width: 350px;
+}
+
+.doc-filename {
+  font-weight: 500;
+}
+
+.doc-loading-text {
+  color: #64748b;
+  font-size: 13px;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* Custom Table Styles */
+.extracted-table {
+  border: 1px solid #545454;
+  font-family: 'Lato', sans-serif;
+  color: #3f3f3f;
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+}
+
+.extracted-table th,
+.extracted-table td {
+  border: 1px solid #545454;
+  text-align: center;
+}
+
+.extracted-table .cell {
+  padding: 12px 16px;
+}
+
+.extracted-table .header-cell {
+  padding: 12px 30px 12px 12px;
+  position: relative;
+  cursor: pointer;
+  background: #f1f5f9;
+}
+
+.extracted-table .header-cell::before,
+.extracted-table .header-cell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  border: 4px solid transparent;
+}
+
+.extracted-table .header-cell::before {
+  border-bottom-color: #bdbdbd;
+  margin-top: -8px; 
+}
+
+.extracted-table .header-cell::after {
+  border-top-color: #bdbdbd;
+  margin-top: 1px;
+}
+  
+.extracted-table .header-cell.sort-asc::before {
+  border-width: 6px;
+  margin-top: -9px;
+  right: 10px;
+  border-bottom-color: #3f3f3f;
+}
+
+.extracted-table .header-cell.sort-asc::after {
+  display: none;
+}
+  
+.extracted-table .header-cell.sort-desc::before {
+  display: none;
+}
+
+.extracted-table .header-cell.sort-desc::after {
+  border-width: 6px;
+  margin-top: -2px;
+  right: 10px;
+  border-top-color: #3f3f3f;
+}
+
+.extracted-table .header-cell div {
+  /* Allow multi-line headers instead of truncating */
+}

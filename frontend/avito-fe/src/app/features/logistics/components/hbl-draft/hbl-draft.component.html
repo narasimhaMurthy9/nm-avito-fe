@@ -1,0 +1,259 @@
+<div class="card mb-6 hbl-draft-card" [style.border-top]="groupColor ? '4px solid ' + groupColor : '1px solid #e2e8f0'">
+      <!-- Accordion Header -->
+      <div 
+        class="accordion-header"
+        (click)="expanded = !expanded"
+      >
+        <div>
+          {{ groupTitle || 'Merged HBL Draft' }} ({{ drafts.length }} Packing List{{ drafts.length > 1 ? 's' : '' }}) &nbsp;|&nbsp; 
+          <span [class.text-ready]="detailsConfirmed" [class.text-draft]="!detailsConfirmed">
+            {{ detailsConfirmed ? 'Ready' : 'Draft' }}
+          </span>
+          &nbsp;|&nbsp; HBL: {{ primaryDraft?.hbl_number || 'Pending' }}
+        </div>
+        <svg class="accordion-icon" [class.rotate-180]="expanded" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </div>
+
+      <!-- Accordion Body -->
+      @if (expanded) {
+        <div class="accordion-body">
+          
+
+
+        <!-- Form and Generated PDF Section -->
+        <div>
+          @if (isLocked) {
+            <div class="alert-success mb-6">
+              Final HBL generated. Saved HBL details are locked.
+            </div>
+          }
+          @if (!isLocked) {
+            <p class="tab-subtitle">Confirm the information received from shipping instructions.</p>
+          }
+          
+          <form #hblForm="ngForm" (ngSubmit)="saveDetails(hblForm)" [class.form-submitted]="hblForm.submitted">
+            <div>
+
+                          <!-- Extracted Data Table -->
+            <div class="border border-gray-200 rounded-md overflow-hidden bg-white">
+              <details class="group" open>
+                <summary style="cursor: pointer; padding: 12px 16px; background: #f8fafc; font-weight: 600; display: flex; justify-content: space-between; align-items: center; list-style: none;" class="border-b border-transparent group-open:border-gray-200">
+                  <span style="color: #0f172a; font-size: 16px;">Extracted Data from PDF</span>
+                  <svg class="w-5 h-5 text-gray-500 transition-transform duration-200 group-open:rotate-180" style="width: 20px; height: 20px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </summary>
+                <div style="background: #fff; max-height: 400px; overflow-y: auto; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; padding: 16px;">
+                  @for (item of getExtractedData(); track $index) {
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                      <span style="font-weight: 600; color: #003366; font-size: 13px; margin-bottom: 4px;">{{ item.key }}</span>
+                      <span style="color: #003366; font-size: 13px;">{{ item.value }}</span>
+                    </div>
+                  }
+                  @if (getExtractedData().length === 0) {
+                    <div class="w-full text-left p-4 text-gray-500" style="grid-column: 1 / -1;">No data extracted.</div>
+                  }
+                </div>
+              </details>
+            </div>
+
+            <!-- Items Details Table -->
+            <div class="mb-4 border border-gray-200 rounded-md overflow-hidden bg-white">
+              <details class="group" open>
+                <summary style="cursor: pointer; padding: 12px 16px; background: #f8fafc; font-weight: 600; display: flex; justify-content: space-between; align-items: center; list-style: none;" class="border-b border-transparent group-open:border-gray-200">
+                  <span style="color: #0f172a; font-size: 16px;">Items Details</span>
+                  <svg class="w-5 h-5 text-gray-500 transition-transform duration-200 group-open:rotate-180" style="width: 20px; height: 20px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </summary>
+                <div class="table-container" style="background: #fff; max-height: 400px; overflow-y: auto;">
+                  <table class="extracted-table" style="table-layout: auto; font-size: 13px;">
+                    <thead>
+                      <tr>
+                        <th class="header-cell" style="cursor: default;">
+                          <div>S.No</div>
+                        </th>
+                        <th class="header-cell" style="cursor: default;">
+                          <div>File Name</div>
+                        </th>
+                        <th class="header-cell" style="cursor: default;">
+                          <div>Invoice<br>Number</div>
+                        </th>
+                        <th class="header-cell" (click)="toggleItemsSort('shipping_marks')" [class.sort-asc]="itemsSortColumn === 'shipping_marks' && itemsSortDirection === 'asc'" [class.sort-desc]="itemsSortColumn === 'shipping_marks' && itemsSortDirection === 'desc'">
+                          <div>Marks & Nos/<br>Container No.</div>
+                        </th>
+                        <th class="header-cell" (click)="toggleItemsSort('package_count')" [class.sort-asc]="itemsSortColumn === 'package_count' && itemsSortDirection === 'asc'" [class.sort-desc]="itemsSortColumn === 'package_count' && itemsSortDirection === 'desc'">
+                          <div>Package Count</div>
+                        </th>
+                        <th class="header-cell" (click)="toggleItemsSort('item_product_description')" [class.sort-asc]="itemsSortColumn === 'item_product_description' && itemsSortDirection === 'asc'" [class.sort-desc]="itemsSortColumn === 'item_product_description' && itemsSortDirection === 'desc'">
+                          <div>Description of Goods</div>
+                        </th>
+                        <th class="header-cell" (click)="toggleItemsSort('hsn_code')" [class.sort-asc]="itemsSortColumn === 'hsn_code' && itemsSortDirection === 'asc'" [class.sort-desc]="itemsSortColumn === 'hsn_code' && itemsSortDirection === 'desc'">
+                          <div>HSN Code</div>
+                        </th>
+                        <th class="header-cell" (click)="toggleItemsSort('net_weight')" [class.sort-asc]="itemsSortColumn === 'net_weight' && itemsSortDirection === 'asc'" [class.sort-desc]="itemsSortColumn === 'net_weight' && itemsSortDirection === 'desc'">
+                          <div>NET.wt</div>
+                        </th>
+                        <th class="header-cell" (click)="toggleItemsSort('quantity')" [class.sort-asc]="itemsSortColumn === 'quantity' && itemsSortDirection === 'asc'" [class.sort-desc]="itemsSortColumn === 'quantity' && itemsSortDirection === 'desc'">
+                          <div>Quantity<br>In PC'S</div>
+                        </th>
+                        <th class="header-cell" style="cursor: default;">
+                          <div>Unit Rate/ 1 PC<br>in ₹</div>
+                        </th>
+                        <th class="header-cell" style="cursor: default;">
+                          <div>Amount<br>in ₹</div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (item of getItems(); track $index; let rowIndex = $index) {
+                        <tr class="hover:bg-blue-50 even:bg-slate-50 transition-colors align-top">
+                          <td class="cell font-semibold">{{ rowIndex + 1 }}</td>
+                          <td class="cell font-semibold">{{ item.source_filename || primaryDraft?.source_name || '--' }}</td>
+                          <td class="cell font-semibold">{{ item.source_invoice_number || '--' }}</td>
+                          <td class="cell font-semibold">{{ item.shipping_marks || item.container_number || '--' }}</td>
+                          <td class="cell font-semibold">{{ item.package_count || '--' }}</td>
+                          <td class="cell font-semibold">{{ getItemGoodsDescription(item) || '--' }}</td>
+                          <td class="cell font-bold">{{ item.hsn_code || '--' }}</td>
+                          <td class="cell font-bold">{{ formatNetWeight(item.net_weight) || '--' }}</td>
+                          <td class="cell font-bold">{{ item.quantity || '--' }}</td>
+                          <td class="cell font-semibold">--</td>
+                          <td class="cell font-semibold">--</td>
+                        </tr>
+                      }
+                      @if (getItems().length === 0) {
+                        <tr>
+                          <td colspan="11" class="cell p-6 text-center text-gray-500 font-semibold">--</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            </div>
+              <!-- Shipment Details -->
+              <div class="">
+                <h4 class="mb-4 pb-2 border-b">Shipment Details</h4>
+                <div class="grid grid-cols-4 gap-4">
+                  <div class="">
+                    <label class="form-label">HBL Number *</label>
+                    <div class="input-group">
+                      <span class="input-group-text">#</span>
+                      <input type="text" name="hblNumber" [(ngModel)]="formData.hbl_number" required #hblNumber="ngModel"
+                        class="form-input group-input" [class.is-invalid]="hblNumber.invalid && (hblNumber.touched || hblForm.submitted)" [disabled]="isLocked" (input)="hblNumber.control.setErrors(null)">
+                    </div>
+                    <div class="error-text" [style.visibility]="hblNumber.invalid && (hblNumber.touched || hblForm.submitted) ? 'visible' : 'hidden'">
+                      {{ hblNumber.hasError('duplicate') ? 'HBL Number must be unique.' : 'HBL Number is required' }}
+                    </div>
+                  </div>
+
+                  <div class="">
+                    <label class="form-label">Container Number *</label>
+                    <div class="input-group">
+                      <span class="input-group-text">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                      </span>
+                      <input type="text" name="containerNumber" [(ngModel)]="formData.container_number" required #containerNumber="ngModel"
+                        class="form-input group-input" [class.is-invalid]="containerNumber.invalid && (containerNumber.touched || hblForm.submitted)" [disabled]="isLocked">
+                    </div>
+                    <div class="error-text" [style.visibility]="containerNumber.invalid && (containerNumber.touched || hblForm.submitted) ? 'visible' : 'hidden'">Container Number is required</div>
+                  </div>
+
+                  <div class="">
+                    <label class="form-label">Seal Number *</label>
+                    <div class="input-group">
+                      <span class="input-group-text">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                      </span>
+                      <input type="text" name="sealNumber" [(ngModel)]="formData.seal_number" required #sealNumber="ngModel"
+                        class="form-input group-input" [class.is-invalid]="sealNumber.invalid && (sealNumber.touched || hblForm.submitted)" [disabled]="isLocked">
+                    </div>
+                    <div class="error-text" [style.visibility]="sealNumber.invalid && (sealNumber.touched || hblForm.submitted) ? 'visible' : 'hidden'">Seal Number is required</div>
+                  </div>
+
+                  <div class="">
+                    <label class="form-label">Freight Terms *</label>
+                    <div class="input-group">
+                      <span class="input-group-text">₹</span>
+                      <select name="freightTerms" [(ngModel)]="formData.freight_terms" required #freightTerms="ngModel"
+                        class="form-input group-input" [class.is-invalid]="freightTerms.invalid && (freightTerms.touched || hblForm.submitted)" [disabled]="isLocked">
+                        <option value="" disabled>Select</option>
+                        <option value="Prepaid">Prepaid</option>
+                        <option value="Collect">Collect</option>
+                      </select>
+                    </div>
+                    <div class="error-text" [style.visibility]="freightTerms.invalid && (freightTerms.touched || hblForm.submitted) ? 'visible' : 'hidden'">Freight Terms is required</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notify Party -->
+              <div>
+                <h4 class="mb-4 pb-2 border-b">Notify Party</h4>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="form-label">Name *</label>
+                    <input type="text" name="notifyName" [(ngModel)]="formData.notify_party.name" required #notifyName="ngModel"
+                      class="form-input" [class.is-invalid]="notifyName.invalid && (notifyName.touched || hblForm.submitted)" [disabled]="isLocked">
+                    <div class="error-text" [style.visibility]="notifyName.invalid && (notifyName.touched || hblForm.submitted) ? 'visible' : 'hidden'">Name is required</div>
+
+                    <label class="form-label">Tax / Registration ID</label>
+                    <input type="text" name="notifyTax" [(ngModel)]="formData.notify_party.tax_id" class="form-input" [disabled]="isLocked">
+                  </div>
+                  <div>
+
+                    <label class="form-label">Address *</label>
+                  <textarea name="notifyAddress" [(ngModel)]="formData.notify_party.address" required #notifyAddress="ngModel" rows="6"
+                    class="form-input" style="resize: none;" [class.is-invalid]="notifyAddress.invalid && (notifyAddress.touched || hblForm.submitted)" [disabled]="isLocked"></textarea>
+                  <div class="error-text" [style.visibility]="notifyAddress.invalid && (notifyAddress.touched || hblForm.submitted) ? 'visible' : 'hidden'">Address is required</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="flex form-actions-container">
+              @if (!isLocked) {
+                <button type="submit" class="btn-primary">Save and Generate Final HBL</button>
+              }
+            </div>
+          </form>
+
+          <!-- Generated HBLs -->
+          @if (isLocked) {
+            <div class="mt-8">
+              <h4 class="mb-4 pb-2 border-b">Generated Final HBL</h4>
+              <p class="tab-subtitle">Final HBL number: <code class="hbl-number-code">{{ primaryDraft?.hbl_number }}</code></p>
+              <div class="generated-hbl-container">
+                @if (primaryDraft?.hbl_pdf) {
+                  <div class="doc-box final-hbl-doc-box" style="max-width: fit-content; gap: 16px;">
+                    <span class="doc-filename" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;">📄 {{ primaryDraft.hbl_filename }}</span>
+                    <button type="button" title="View Full HBL" [disabled]="isHblPreviewLoading()" style="border: none; background: transparent; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px;" (click)="viewHblPreview(primaryDraft)">👁️</button>
+                    @if (isHblPreviewLoading()) {
+                      <span class="doc-loading-text">Preparing HBL preview...</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        </div>
+      }
+    </div>
+
+    @if (selectedDocUrl) {
+      <app-document-modal 
+        [isOpen]="true" 
+        [title]="selectedDocName" 
+        [documentUrl]="selectedDocUrl" 
+        [mimeType]="selectedDocMime"
+        (closed)="closeDoc()">
+      </app-document-modal>
+    }
+
+    @if (hblPreviewUrl()) {
+      <app-document-modal
+        [isOpen]="true"
+        [title]="hblPreviewName() || 'HBL PDF'"
+        [documentUrl]="hblPreviewUrl()!"
+        mimeType="application/pdf"
+        (closed)="closeHblPreview()">
+      </app-document-modal>
+    }

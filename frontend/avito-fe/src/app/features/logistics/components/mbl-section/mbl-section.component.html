@@ -1,0 +1,123 @@
+<div class="mt-12 pt-8 border-t">
+      <h2 class="mbl-title">Master Bill of Lading</h2>
+      <p class="mbl-subtitle">This MBL includes every HBL created from the uploaded packing-list batch. Confirm the carrier booking, MBL-level parties, and VGM before generation.</p>
+
+      @if (mblReview.mbl_pdf) {
+        <div class="card">
+          <p class="success-text">Final MBL generated from {{ mblReview.draft_ids.length }} HBL(s).</p>
+          <p class="info-text">Final MBL number: <code class="code-block">{{ mblReview.mbl_number }}</code></p>
+          <p class="info-text-large">Included HBLs: {{ getIncludedHblNumbers() }}</p>
+
+          <div class="doc-box" style="max-width: fit-content; gap: 16px;">
+            <span class="doc-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;">📄 {{ mblReview.mbl_filename }}</span>
+            <button type="button" title="Preview MBL" [disabled]="isPreviewing" style="border: none; background: transparent; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px;" (click)="previewMbl()">
+              @if (isPreviewing) {
+                <span style="animation: spin 1s linear infinite;">⏳</span>
+              } @else {
+                👁️
+              }
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (!mblReview.mbl_pdf) {
+        <div class="card">
+          <p class="info-text-large included-hbls-label">Included HBLs: {{ getIncludedHblNumbers() }}</p>
+
+          <form #mblForm="ngForm" (ngSubmit)="saveDetails(mblForm)" [class.form-submitted]="mblForm.submitted">
+            <h4 class="form-section-title">MBL Details</h4>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin-bottom: 32px;">
+               <div>
+                  <label class="form-label">MBL Number *</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.mbl_number" name="mblNumber" class="form-input" required #mblNumber="ngModel"
+                    [class.is-invalid]="mblNumber.invalid && (mblNumber.touched || mblForm.submitted)">
+                  <div class="error-text" [style.visibility]="mblNumber.invalid && (mblNumber.touched || mblForm.submitted) ? 'visible' : 'hidden'">MBL Number is required</div>
+               </div>
+               <div>
+                  <label class="form-label">Carrier Booking Reference *</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.carrier_booking_reference" name="carrierBookingReference" class="form-input" required #carrierBookingReference="ngModel"
+                    [class.is-invalid]="carrierBookingReference.invalid && (carrierBookingReference.touched || mblForm.submitted)">
+                  <div class="error-text" [style.visibility]="carrierBookingReference.invalid && (carrierBookingReference.touched || mblForm.submitted) ? 'visible' : 'hidden'">Carrier Booking Reference is required</div>
+               </div>
+              <div>
+                <label class="form-label">Pre-carriage By *</label>
+                <input type="text" [(ngModel)]="mblReview.mbl_details.pre_carriage_by" name="preCarriageBy" class="form-input" required #preCarriageBy="ngModel"
+                  [class.is-invalid]="preCarriageBy.invalid && (preCarriageBy.touched || mblForm.submitted)">
+                <div class="error-text" [style.visibility]="preCarriageBy.invalid && (preCarriageBy.touched || mblForm.submitted) ? 'visible' : 'hidden'">Pre-carriage By is required</div>
+              </div>
+               <div>
+                  <label class="form-label">Vessel Name *</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.vessel_name" name="vesselName" class="form-input" required #vesselName="ngModel"
+                    [class.is-invalid]="vesselName.invalid && (vesselName.touched || mblForm.submitted)">
+                  <div class="error-text" [style.visibility]="vesselName.invalid && (vesselName.touched || mblForm.submitted) ? 'visible' : 'hidden'">Vessel Name is required</div>
+               </div>
+               <div>
+                  <label class="form-label">Voyage Number *</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.voyage_number" name="voyageNumber" class="form-input" required #voyageNumber="ngModel"
+                    [class.is-invalid]="voyageNumber.invalid && (voyageNumber.touched || mblForm.submitted)">
+                  <div class="error-text" [style.visibility]="voyageNumber.invalid && (voyageNumber.touched || mblForm.submitted) ? 'visible' : 'hidden'">Voyage Number is required</div>
+               </div>
+               <div>
+                  <label class="form-label">Port of Loading *</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.port_of_loading" name="portOfLoading" class="form-input" required #portOfLoading="ngModel"
+                    [class.is-invalid]="portOfLoading.invalid && (portOfLoading.touched || mblForm.submitted)">
+                  <div class="error-text" [style.visibility]="portOfLoading.invalid && (portOfLoading.touched || mblForm.submitted) ? 'visible' : 'hidden'">Port of Loading is required</div>
+               </div>
+               <div>
+                  <label class="form-label">Port of Discharge *</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.port_of_discharge" name="portOfDischarge" class="form-input" required #portOfDischarge="ngModel"
+                    [class.is-invalid]="portOfDischarge.invalid && (portOfDischarge.touched || mblForm.submitted)">
+                  <div class="error-text" [style.visibility]="portOfDischarge.invalid && (portOfDischarge.touched || mblForm.submitted) ? 'visible' : 'hidden'">Port of Discharge is required</div>
+               </div>
+               <div>
+                  <label class="form-label">Place of Final Delivery *</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.place_of_final_delivery" name="placeOfFinalDelivery" class="form-input" required #placeOfFinalDelivery="ngModel"
+                    [class.is-invalid]="placeOfFinalDelivery.invalid && (placeOfFinalDelivery.touched || mblForm.submitted)">
+                  <div class="error-text" [style.visibility]="placeOfFinalDelivery.invalid && (placeOfFinalDelivery.touched || mblForm.submitted) ? 'visible' : 'hidden'">Place of Final Delivery is required</div>
+               </div>
+               <div>
+                  <label class="form-label">Shipper Name *</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.shipper.name" name="shipperName" required #shipperName="ngModel" 
+                    class="form-input" [class.is-invalid]="shipperName.invalid">
+                  <div class="error-text">Shipper Name is required</div>
+               </div>
+               <div>
+                  <label class="form-label">Consignee Name *</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.consignee.name" name="consigneeName" required #consigneeName="ngModel" 
+                    class="form-input" [class.is-invalid]="consigneeName.invalid">
+                  <div class="error-text">Consignee Name is required</div>
+               </div>
+               <div>
+                  <label class="form-label">Tare Weight *</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.tare_weight" name="tareWeight" class="form-input" required #tareWeight="ngModel"
+                    [class.is-invalid]="tareWeight.invalid && (tareWeight.touched || mblForm.submitted)">
+                  <div class="error-text" [style.visibility]="tareWeight.invalid && (tareWeight.touched || mblForm.submitted) ? 'visible' : 'hidden'">Tare Weight is required</div>
+               </div>
+               <div>
+                  <label class="form-label">Verified Gross Mass (VGM)</label>
+                  <input type="text" [(ngModel)]="mblReview.mbl_details.verified_gross_mass" name="vgm" class="form-input">
+               </div>
+            </div>
+
+            <button type="submit" class="btn-primary">Generate Final MBL PDF</button>
+
+            @if (mblForm.submitted && mblForm.invalid) {
+              <div class="alert-error mt-4">
+                Please complete all required MBL fields.
+              </div>
+            }
+          </form>
+        </div>
+      }
+    </div>
+
+    @if (viewMbl && (previewMblUrl || mblReview.mbl_pdf)) {
+      <app-document-modal 
+        [isOpen]="viewMbl" 
+        [title]="mblReview.mbl_filename || 'MBL Preview'" 
+        [documentUrl]="previewMblUrl || mblReview.mbl_pdf!" 
+        mimeType="application/pdf"
+        (closed)="onMblModalClose()">
+      </app-document-modal>
+    }
